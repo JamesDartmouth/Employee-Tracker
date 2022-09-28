@@ -206,11 +206,107 @@ function addRole() {
         department_id: answer.departmentId
       })
       if (err) throw (err);
-      console.log('Added ' + answer.newDept + " to departments!");
+      console.log('Added ' + answer.title + " to roles!");
 
       viewRoles();
     })
 }
+
+function addEmployee() {
+  inquirer.prompt([
+    {
+      name: 'firstName',
+      type: 'input',
+      message: 'What is the first name of this Employee?'
+  },
+  {
+      name: 'lastName',
+      type: 'input',
+      message: 'What is the last name of this Employee?'
+  },
+  {
+      name: 'roleId',
+      type: 'list',
+      // choices: roles.map((role) => {
+      //     return {
+      //         name: role.title,
+      //         value: role.id
+      //     }
+      // }),
+      message: "What is this Employee's role id?"
+  },
+  {
+      name: 'managerId',
+      type: 'list',
+      // choices: managers.map((manager) => {
+      //     return {
+      //         name: manager.first_name + " " + manager.last_name,
+      //         value: manager.id
+      //     }
+      // }),
+      message: "What is this Employee's Manager's Id?"
+  }
+  ])
+    .then(answer => {
+      db.query("INSERT INTO employee SET ?", {
+        first_name: answer.firstName,
+        last_name: answer.lastName,
+        role_id: (answer.employeeRoleId),
+        // manager_id: (answer.employeeManagerId)
+    })
+      if (err) throw (err);
+      console.log('Added ' + answer.firstName + answer.lastName +  " to employees!");
+
+      viewEmployees();
+    })
+}
+
+function updateEmployeeRole(){
+
+  db.query('SELECT * FROM employee').then((result, err) => {
+    if (err) console.error(err);
+
+    const employees = result.map(({id, first_name, last_name})=> ({name: first_name + " " + last_name, value: id}));
+  
+    inquirer.prompt([
+      {
+        type: 'list',
+        name: 'name',
+        message: "Which employee would you like to update?",
+        choices: employees
+      }
+    ])
+    .then(){
+      db.query('SELECT * FROM role').then((data, err) => {
+        if (err) console.error(err);
+    
+        const roles = data.map(({title,  department_id})=> ({role: title,  value: department_id}name: first_name + " " + last_name, value: id}));
+      
+        inquirer.prompt([
+          {
+            type: 'list',
+            name: 'name',
+            message: "What is the employee's new role?",
+            choices: roles
+          }
+        ])
+
+    }
+    
+    .then(answer => {
+      db.query("INSERT INTO employee SET ?", {
+        first_name: answer.firstName,
+        last_name: answer.lastName,
+        role_id: (answer.employeeRoleId),
+        // manager_id: (answer.employeeManagerId)
+    })
+      if (err) throw (err);
+      console.log('Added ' + answer.firstName + answer.lastName +  " to employees!");
+
+      viewEmployees();
+    })
+}
+
 // What would you like to do?
 // View all Employees
 // Add Employee
