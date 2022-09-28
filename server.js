@@ -2,7 +2,7 @@
 // const routes = require('./routes');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const db = require('./db/connection');
+const db = require('./config/connection');
 require('console.table')
 
 const utils = require('util');
@@ -99,7 +99,7 @@ function start() {
       }
     });
 }
-
+start();
 
 // presented with a formatted table showing department names and department ids
 
@@ -156,22 +156,22 @@ function addDepartment() {
       message: 'What Department would you like to add?',
     }
   ])
-  .then(answer => {
-    db.query("INSERT INTO department SET ?", {
-          department_name: answer.deptName
+    .then(answer => {
+      db.query("INSERT INTO department SET ?", {
+        department_name: answer.deptName
       })
-    if (err) throw (err);
-    console.log('Added ' + answer.newDept + " to departments!");
+      if (err) throw (err);
+      console.log('Added ' + answer.newDept + " to departments!");
 
-    viewDepartments();
-  })
-    // .then(answer => {
-    //   db.query(`INSERT INTO department (name) VALUES (?)`, answer.newDept, (err, result) => {
-    //     if (err) throw (err);
-    //     console.log('Added ' + answer.newDept + " to departments!");
-    //     viewDepartments();
-    //   })
-    // })
+      viewDepartments();
+    })
+  // .then(answer => {
+  //   db.query(`INSERT INTO department (name) VALUES (?)`, answer.newDept, (err, result) => {
+  //     if (err) throw (err);
+  //     console.log('Added ' + answer.newDept + " to departments!");
+  //     viewDepartments();
+  //   })
+  // })
 }
 
 function addRole() {
@@ -225,16 +225,16 @@ function addEmployee() {
       name: 'firstName',
       type: 'input',
       message: 'What is the first name of this Employee?'
-  },
-  {
+    },
+    {
       name: 'lastName',
       type: 'input',
       message: 'What is the last name of this Employee?'
-  },
-  {
+    },
+    {
       name: 'roleId',
       type: 'list',
-        // choices: ['1. Sales Lead',
+      // choices: ['1. Sales Lead',
       //   '2. Salesperson',
       //   '3. Lead Engineer',
       //   '4. Software Engineer'
@@ -242,29 +242,29 @@ function addEmployee() {
       //   '6. Accountant',
       //   '7. Legal Team Lead',
       //   '8. Lawyer']
-      choices: roles.map((role) => {
-          return {
-              name: role.title,
-              value: role.id
-          }
+      choices: role.map((role) => {
+        return {
+          name: role.title,
+          value: role.id
+        }
       }),
       message: "What is this Employee's role ID?"
-  },
-  {
+    },
+    {
       name: 'managerId',
       type: 'list',
-              // choices: ['1. John Doe',
+      // choices: ['1. John Doe',
       //   '3. Ashley Rodriguez',
       //   '5. Kunal Singh',
       //   '7. Sarah Lourd']
       choices: managers.map((manager) => {
-          return {
-              name: manager.first_name + " " + manager.last_name,
-              value: manager.id
-          }
+        return {
+          name: manager.first_name + " " + manager.last_name,
+          value: manager.id
+        }
       }),
       message: "What is this Employee's Manager's Id?"
-  }
+    }
   ])
     .then(answer => {
       db.query("INSERT INTO employee SET ?", {
@@ -272,21 +272,21 @@ function addEmployee() {
         last_name: answer.lastName,
         role_id: (answer.employeeRoleId),
         // manager_id: (answer.employeeManagerId)
-    })
+      })
       if (err) throw (err);
-      console.log('Added ' + answer.firstName + answer.lastName +  " to employees!");
+      console.log('Added ' + answer.firstName + answer.lastName + " to employees!");
 
       viewEmployees();
     })
 }
 
-function updateEmployeeRole(){
+function updateEmployeeRole() {
 
   db.query('SELECT * FROM employee').then((result, err) => {
     if (err) console.error(err);
 
-    const employees = result.map(({id, first_name, last_name})=> ({name: first_name + " " + last_name, value: id}));
-  
+    const employees = result.map(({ id, first_name, last_name }) => ({ name: first_name + " " + last_name, value: id }));
+
     inquirer.prompt([
       {
         type: 'list',
@@ -295,40 +295,33 @@ function updateEmployeeRole(){
         choices: employees
       }
     ])
-    .then(){
-      db.query('SELECT * FROM role').then((data, err) => {
-        if (err) console.error(err);
-    
-        const roles = data.map(({title,  department_id})=> ({role: title,  value: department_id}name: first_name + " " + last_name, value: id}));
-    
-        inquirer.prompt([
-          {
-            type: 'list',
-            name: 'name',
-            message: "What is the employee's new role?",
-            choices: roles
-          }
-        ])
-    .then(answer => {
-      db.query("INSERT INTO employee SET ?", {
-        first_name: answer.firstName,
-        last_name: answer.lastName,
-        role_id: (answer.employeeRoleId),
-        // manager_id: (answer.employeeManagerId)
-    })
-      if (err) throw (err);
-      console.log('Added ' + answer.firstName + answer.lastName +  " to employees!");
+      .then((result, err) => {
+        db.query('SELECT * FROM role').then((data, err) => {
+          if (err) console.error(err);
 
-      viewEmployees();
-    })
+          const roles = data.map(({ title, department_id }) => ({ role: title, value: department_id }),
+
+            inquirer.prompt([
+              {
+                type: 'list',
+                name: 'role',
+                message: "What is the employee's new role?",
+                choices: roles
+              }
+            ])
+              .then(answer => {
+                db.query("INSERT INTO employee SET ?", {
+                  first_name: answer.firstName,
+                  last_name: answer.lastName,
+                  role_id: (answer.employeeRoleId),
+                  // manager_id: (answer.employeeManagerId)
+                })
+                if (err) throw (err);
+                console.log('Added ' + answer.firstName + answer.lastName + " to employees!");
+
+                viewEmployees();
+            }))
+        })
+      })
+  })
 }
-
-// What would you like to do?
-// View all Employees
-// Add Employee
-// Update Employee Resolver
-// View all Roles
-// Add ROle
-// View All Departments
-// Add Department
-// Quit 
