@@ -128,18 +128,17 @@ function viewRoles() {
 
 function viewEmployees() {
   db.query(
-    // `SELECT employee.id, 
-    //                   employee.first_name, 
-    //                   employee.last_name, 
-    //                   role.title, 
-    //                   department.name AS department,
-    //                   role.salary, 
-    //                   CONCAT (manager.first_name, " ", manager.last_name) AS manager
-    //            FROM employee
-    //                   LEFT JOIN role ON employee.role_id = role.id
-    //                   LEFT JOIN department ON role.department_id = department.id
-    //                   LEFT JOIN employee manager ON employee.manager_id = manager.id`
-    'SELECT employee.id, employee.first_name, employee.last_name, employee_role.title, employee_role.salary FROM employeetracker_db.employee LEFT JOIN employee_role on employee_role.id = employee.role_id')
+    `SELECT employee.id, 
+                      employee.first_name, 
+                      employee.last_name, 
+                      role.title, 
+                      department.name AS department,
+                      role.salary, 
+                      CONCAT (manager.first_name, " ", manager.last_name) AS manager
+               FROM employee
+                      LEFT JOIN role ON employee.role_id = role.id
+                      LEFT JOIN department ON role.department_id = department.id
+                      LEFT JOIN manager ON employee.manager_id = manager.id`)
     .then((result, err) => {
       if (err) console.error(err);
       console.table(result);
@@ -188,9 +187,14 @@ function addRole() {
       message: 'What is the salary of this new role?'
     },
     {
+      // hard code departments?
       name: 'departmentId',
       type: 'list',
-      choices: departments.map((departmentId) => {
+      // choices: ['1. Sales',
+      //   '2. Engineering',
+      //   '3. Finance',
+      //   '4. Legal']
+      choices: department.map((departmentId) => {
         return {
           name: departmentId.department_name,
           value: departmentId.id
@@ -212,6 +216,9 @@ function addRole() {
     })
 }
 
+// prompted to enter the employee’s first name, last name, role, and manager, 
+// and that employee is added to the database
+
 function addEmployee() {
   inquirer.prompt([
     {
@@ -227,23 +234,35 @@ function addEmployee() {
   {
       name: 'roleId',
       type: 'list',
-      // choices: roles.map((role) => {
-      //     return {
-      //         name: role.title,
-      //         value: role.id
-      //     }
-      // }),
-      message: "What is this Employee's role id?"
+        // choices: ['1. Sales Lead',
+      //   '2. Salesperson',
+      //   '3. Lead Engineer',
+      //   '4. Software Engineer'
+      //   '5. Account Manager',
+      //   '6. Accountant',
+      //   '7. Legal Team Lead',
+      //   '8. Lawyer']
+      choices: roles.map((role) => {
+          return {
+              name: role.title,
+              value: role.id
+          }
+      }),
+      message: "What is this Employee's role ID?"
   },
   {
       name: 'managerId',
       type: 'list',
-      // choices: managers.map((manager) => {
-      //     return {
-      //         name: manager.first_name + " " + manager.last_name,
-      //         value: manager.id
-      //     }
-      // }),
+              // choices: ['1. John Doe',
+      //   '3. Ashley Rodriguez',
+      //   '5. Kunal Singh',
+      //   '7. Sarah Lourd']
+      choices: managers.map((manager) => {
+          return {
+              name: manager.first_name + " " + manager.last_name,
+              value: manager.id
+          }
+      }),
       message: "What is this Employee's Manager's Id?"
   }
   ])
@@ -281,7 +300,7 @@ function updateEmployeeRole(){
         if (err) console.error(err);
     
         const roles = data.map(({title,  department_id})=> ({role: title,  value: department_id}name: first_name + " " + last_name, value: id}));
-      
+    
         inquirer.prompt([
           {
             type: 'list',
@@ -290,9 +309,6 @@ function updateEmployeeRole(){
             choices: roles
           }
         ])
-
-    }
-    
     .then(answer => {
       db.query("INSERT INTO employee SET ?", {
         first_name: answer.firstName,
