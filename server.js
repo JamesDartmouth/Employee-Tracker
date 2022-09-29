@@ -104,7 +104,6 @@ start();
 // presented with a formatted table showing department names and department ids
 
 function viewDepartments() {
-  // `SELECT department.id AS id, department.name AS department FROM department`
   db.query('SELECT * from department').then((result, err) => {
     if (err) console.error(err);
     console.table(result);
