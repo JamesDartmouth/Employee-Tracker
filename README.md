@@ -10,10 +10,10 @@ User can find deployed app at [Deployed](https://jamesdartmouth.github.io/Employ
 
 Repot can be found at [Repo](https://github.com/JamesDartmouth/Employee-Tracker)
 
-Screenshots.
 
 [Screenshot](./assets/Employee%20Tracker%20Screenshot.png)
-[video](./assets/Employee%20Tracker%20VIdeo.webm)
+
+[Video](./assets/Employee%20Tracker%20VIdeo.webm)
 
 
 ## Credits
