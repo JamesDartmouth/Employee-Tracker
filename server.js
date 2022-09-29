@@ -126,15 +126,16 @@ function viewRoles() {
 // presented with a formatted table showing employee data, including employee ids, 
 // first names, last names, job titles, departments, salaries, and managers that the employees report to
 
-// TROUBLE WITH ADDING MANAGER-------------------------------------------------------------------------
 
 function viewEmployees() {
   db.query(
     `SELECT employee.id, employee.first_name, employee.last_name, role.title, 
-    department.department_name AS department, role.salary 
+    department.department_name AS department, role.salary, 
+    CONCAT (manager.first_name, " ", manager.last_name) AS manager 
     FROM employee
     LEFT JOIN role ON employee.role_id = role.id 
-    LEFT JOIN department ON role.department_id = department.id`)
+    LEFT JOIN department ON role.department_id = department.id
+    LEFT JOIN employee manager ON employee.manager_id = manager.id`)
     .then((result, err) => {
       if (err) console.error(err);
       console.table(result);
@@ -164,8 +165,6 @@ function addDepartment() {
 
 function addRole() {
 
-  const departments = db.query('SELECT * FROM department')
-
   inquirer.prompt([
     {
       name: 'title',
@@ -179,7 +178,6 @@ function addRole() {
     }
   ])
 
-    // DEPARTMENT ADDED AS NULL-------------------------------------------------------------------------------------------
     .then(answer => {
 
       const params = [answer.title, answer.salary]
@@ -187,7 +185,7 @@ function addRole() {
       db.query(`SELECT department_name, id FROM department`, (err, result) => {
         if (err) throw err;
 
-        const dept = result.map(({ department_name, department_id }) => ({ name: department_name, value: department_id }));
+        const dept = result.map(({ department_name, id }) => ({ name: department_name, value: id }));
 
         inquirer.prompt([
           {
