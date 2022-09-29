@@ -15,6 +15,7 @@ Repot can be found at [Repo](https://github.com/JamesDartmouth/Employee-Tracker)
 
 [Video](./assets/Employee%20Tracker%20VIdeo.webm)
 
+(Video is too large for github but can be downloaded thru github)
 
 ## Credits
 
